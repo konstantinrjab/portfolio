@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LCD Code Converter</title>
+  <style>
+    body {
+      background-color: azure;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #212529;
+    }
+
+    p {
+      cursor: default;
+    }
+
+    label {
+      width: 200px;
+      display: inline-block;
+    }
+
+    button {
+      font-size: 1rem;
+      cursor: pointer;
+      color: #fff;
+      background-color: #007bff;
+      display: inline-block;
+      font-weight: 400;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      border: 1px solid transparent;
+      padding: .375rem .75rem;
+      border-radius: .25rem;
+    }
+
+    button:active {
+      background-color: #0062cc;
+    }
+
+    table, th, td {
+      border: 4px solid lightgreen;
+    }
+
+    table {
+      text-align: center;
+      table-layout: fixed;
+    }
+
+    tr {
+      height: 40px;
+    }
+
+    td {
+      width: 30px;
+    }
+
+    textarea {
+      margin-top: 10px;
+      display: block;
+      width: 100%;
+
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+    }
+
+    .wrapper {
+      margin: 20px auto;
+      width: 50vw;
+    }
+
+    .lcd__device {
+      display: inline-block;
+      vertical-align: top;
+      text-align: center;
+      border: 30px solid lightgrey;
+      border-radius: 25px;
+      background-color: darkgray;
+      margin: 10px auto 30px;
+    }
+
+    .lcd__display {
+      color: darkolivegreen;
+      font-weight: bold;
+      background-color: limegreen;
+      margin: auto;
+      border-collapse: collapse;
+    }
+
+    .output__wrapper {
+      color: black;
+      font-weight: 600;
+    }
+
+    .text-danger {
+      color: #dc3545;
+      font-size: 1.3rem;
+      font-weight: 500;
+      text-shadow: 0 0 10px #c00;
+    }
+  </style>
+</head>
+<body>
+
+<div class="" style="text-align: center;">
+  <div class="lcd__device" id="lcd-device">
+
+  </div>
+</div>
+
+<div class="wrapper">
+  <div class="lcd__configuration">
+    <label for="lcd-length">Ширина LCD дисплею: </label>
+    <input type="number" id="lcd-length" value="16" onchange="createTable()">
+    <br>
+    <label for="lcd-height">Висота LCD дисплею: </label>
+    <input type="number" id="lcd-height" value="2" onchange="createTable()">
+  </div>
+  <br>
+  <label for="operator">Оператор: </label>
+  <input id="operator" value="flash unsigned char Mes">
+  <br>
+  <label for="last-byte">Байт кінця строки: </label>
+  <input id="last-byte" type="number" value="0">
+  <br>
+  <label for="start-string">Номер першого массиву: </label>
+  <input id="start-string" type="number" value="0">
+  <br>
+  <label for="first-videobyte">Перший відеобайт </label>
+  <input type="checkbox" id="first-videobyte" checked>
+
+  <div class="output__wrapper">
+    <p id="output">Тут з'явиться ваша строка</p>
+    <button onclick="copyResult()">Скопіювати код</button>
+  </div>
+</div>
+<div class="wrapper">
+  <p class="text-danger" id="warning"></p>
+  <label for="input">Введіть строку</label>
+  <textarea name="" id="input" cols="30" rows="4" onkeyup="getCode(this.value)"></textarea>
+  <p>Ви можете користуватись наступними спецсимволами</p>
+  <p> , ! " # $ % & \ ( ) * +   - . / 0 1 2 3 4 5 6 7 8 9  ; < = > ? @ [ \ ] ^ _ ` { | } ~ £ ¥ © ° ± ² ³ ¹ µ ± º × ß ÷ ø § ø ¢ ▲ ► ▼ ◄ ← ↑ → ↓ █ ¿ ° </p>
+</div>
+</body>
+<script type="text/javascript">
+    var code = {
+        'А': '41', 'а': '61', 'A': '41', 'a': '61',
+        'Б': 'A0', 'б': 'B2', 'B': '42', 'b': '62',
+        'В': '42', 'в': 'B3', 'C': '43', 'c': '63',
+        'Г': 'A1', 'г': 'B4', 'D': '44', 'd': '64',
+        'Д': 'E0', 'д': 'E3', 'E': '45', 'e': '65',
+        'Е': '45', 'е': '65', 'F': '46', 'f': '66',
+        'Ё': 'A2', 'ё': 'B5', 'G': '47', 'g': '67',
+        'Ж': 'A3', 'ж': 'B6', 'H': '48', 'h': '68',
+        'З': 'A4', 'з': 'B7', 'I': '49', 'i': '69',
+        'И': 'A5', 'и': 'B8', 'J': '4A', 'j': '6A',
+        'Й': 'A6', 'й': 'B9', 'K': '4B', 'k': '6B',
+        'К': '4B', 'к': 'BA', 'L': '4C', 'l': '6C',
+        'Л': 'A7', 'л': 'BB', 'M': '4D', 'm': '6D',
+        'М': '4D', 'м': 'BC', 'N': '4E', 'n': '6E',
+        'Н': '48', 'н': 'BD', 'O': '4F', 'o': '6F',
+        'О': '4F', 'о': '6F', 'P': '50', 'p': '70',
+        'П': 'A8', 'п': 'BE', 'Q': '51', 'q': '71',
+        'Р': '50', 'р': '70', 'R': '52', 'r': '72',
+        'С': '43', 'с': '63', 'S': '53', 's': '73',
+        'Т': '54', 'т': 'BF', 'T': '54', 't': '74',
+        'У': 'A9', 'у': '79', 'U': '55', 'u': '75',
+        'Ф': 'AA', 'ф': 'E4', 'V': '56', 'v': '76',
+        'Х': '58', 'х': '78', 'W': '57', 'w': '77',
+        'Ц': 'E1', 'ц': 'E5', 'X': '58', 'x': '78',
+        'Ч': 'AB', 'ч': 'C0', 'Y': '59', 'y': '79',
+        'Ш': 'AC', 'ш': 'C1', 'Z': '5A', 'z': '7A',
+        'Щ': 'E2', 'щ': 'E6',
+        'Ъ': 'AD', 'ъ': 'C2',
+        'Ы': 'AE', 'ы': 'C3',
+        'Ь': '62', 'ь': 'C4',
+        'Э': 'AF', 'э': 'C5',
+        'Ю': 'B0', 'ю': 'C6',
+        'Я': 'B1', 'я': 'C7',
+        'І': '49', 'і': '69',
+
+        ' ': '20', '!': '21', '"': '22', '#': '23', '$': '24',
+        '%': '25', '&': '26', '\'': '27', '(': '28', ')': '29',
+        '*': '2A', '+': '2B', ',': '2C', '-': '2D', '.': '2E',
+        '/': '2F',
+        '0': '30', '1': '31', '2': '32', '3': '33', '4': '34',
+        '5': '35', '6': '36', '7': '37', '8': '38', '9': '39',
+        ':': '3A', ';': '3B', '<': '3C', '=': '3D', '>': '3E',
+        '?': '3F', '@': '40',
+        '[': '5B', '\\': '5C', ']': '5D', '^': '5E',
+        '_': '5F', '`': '60',
+        '{': '7B', '|': '7C', '}': '7D', '~': '7E',
+
+        '£': 'A3', '¥': 'A5', '©': 'A9',
+        '°': 'B0', '±': 'B1', '²': 'B2', '³': 'B3', '¹': 'B9',
+        'µ': 'B5', '±': 'B1', 'º': 'BA',
+        '×': 'D7', 'ß': 'DF', '÷': 'F7', 'ø': 'F8',
+        '§': 'A7',
+        'ø': 'F8', '¢': 'A2',
+
+        '▲': '30', '►': '16', '▼': '31', '◄': '17',
+        '←': '27', '↑': '24', '→': '26', '↓': '25',
+        '█': 'FF', '¿': 'BF', '°': 'DF'
+    };
+
+    var output = document.getElementById('output');
+    var body = document.getElementsByTagName("body")[0];
+    // var result_strings = [];
+    createTable();
+
+    function getCode(text) {
+        var result_code = [];
+        var strings = text.split('\n');
+        var result_strings = [];
+
+        document.getElementById('warning').innerHTML = '';
+        clearTable();
+
+        strings.forEach(function (string, i, arr) {
+            var symbols = string.split("");
+
+            symbols.forEach(function (item, j, arr) {
+                //add converted code to array
+                if (!code[item]) {
+                    document.getElementById('warning').innerHTML = 'Не можу перевести \'' + item + '\'';
+                }
+                result_code.push(parseInt(code[item], 16));
+                try {
+                    document.getElementsByClassName('display__row')[i].getElementsByClassName('display__cell')[j].innerHTML = item;
+                }
+                catch (error) {
+                    document.getElementById('warning').innerHTML = 'Необхідно збільшити розміри дисплею';
+                }
+            });
+            result_strings.push(getResultString(result_code, i));
+            result_code = [];
+        });
+        // console.log(result_strings);
+        displayStringResult(result_strings);
+    }
+
+    function getResultString(array, i) {
+        var result_string;
+        var start_string = parseInt(document.getElementById('start-string').value) + parseInt(i);
+        var operator = document.getElementById('operator').value;
+        var last_byte = document.getElementById('last-byte').value;
+        result_string = operator + start_string + '[]={';
+        if (document.getElementById('first-videobyte').checked) {
+            result_string += '64,';
+        }
+        array.forEach(function (item, i, arr) {
+            result_string += item;
+            result_string += ', '
+        });
+        result_string += last_byte + '};';
+        return result_string;
+    }
+
+    function createTable() {
+        table = document.getElementById('lcd-display');
+        if (table) {
+            table.parentElement.removeChild(table);
+        }
+        var height = document.getElementById('lcd-height').value;
+        var length = document.getElementById('lcd-length').value;
+        var table = document.createElement('table');
+        table.id = 'lcd-display';
+        table.classList.add('lcd__display');
+
+        // creates a <table> element and a <tbody> element
+        var tblBody = document.createElement("tbody");
+
+        // creating all cells
+        for (var i = 0; i < height; i++) {
+            // creates a table row
+            var row = document.createElement("tr");
+            row.classList.add('display__row');
+
+            for (var j = 0; j < length; j++) {
+                // Create a <td> element and a text node, make the text
+                // node the contents of the <td>, and put the <td> at
+                // the end of the table row
+                var cell = document.createElement("td");
+                cell.classList.add('display__cell');
+                var cellText = document.createTextNode(' ');
+                cell.appendChild(cellText);
+                row.appendChild(cell);
+            }
+
+            // add the row to the end of the table body
+            tblBody.appendChild(row);
+        }
+        table.appendChild(tblBody);
+
+        document.getElementById('lcd-device').appendChild(table);
+
+        //textarea height
+        document.getElementById('input').setAttribute('rows', parseInt(height) + parseInt(0));
+    }
+
+    function clearTable() {
+        var table = document.getElementById('lcd-display');
+        var height = document.getElementById('lcd-height').value;
+        var length = document.getElementById('lcd-length').value;
+        if (table) {
+            for (var i = 0; i < height; i++) {
+                for (var j = 0; j < length; j++) {
+                    document.getElementsByClassName('display__row')[i].getElementsByClassName('display__cell')[j].innerHTML = '';
+                }
+            }
+        }
+    }
+
+    function displayStringResult(result_strings) {
+        output.innerText = '';
+        result_strings.forEach(function (string, i, arr) {
+            output.innerText += string + '\n';
+        });
+    }
+
+    function copyResult() {
+        var selection = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(document.getElementById('output'));
+        selection.removeAllRanges();
+        selection.addRange(range);
+        document.execCommand('copy');
+        selection.removeAllRanges();
+    }
+</script>
+</html>
