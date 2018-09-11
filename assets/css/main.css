@@ -1,0 +1,8 @@
+body{
+    font-size: 1.2em;
+}
+#github-link{
+    background: #343a40 url("../img/github-256.png") 5px 0 no-repeat;
+    background-size: contain;
+    padding-left: 50px;
+}
